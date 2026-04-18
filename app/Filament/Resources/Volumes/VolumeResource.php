@@ -50,10 +50,12 @@ class VolumeResource extends Resource
                             ->directory('volumes/covers')
                             ->live(onBlur: true) 
                             ->afterStateUpdated(function ($set, $state) {
-                                if (! $state) {
+                                // 🌟 DÒNG QUAN TRỌNG: Nếu không phải đối tượng file thì dừng lại luôn
+                                if (! $state instanceof \Illuminate\Http\UploadedFile) {
                                     return;
                                 }
-                                // Trích xuất tên tệp ảnh
+
+                                // Trích xuất tên tệp ảnh (Chỉ chạy khi $state thực sự là file)
                                 $set('title', 'Tập - ' . $state->getClientOriginalName());
 
                                 // Trích xuất tóm tắt cơ bản

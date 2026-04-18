@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-// Nhớ thêm dòng này để dùng chức năng BelongsTo
-use Illuminate\Database\Eloquent\Relations\BelongsTo; 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+// 🌟 Nhớ thêm dòng HasMany này ở trên cùng
+use Illuminate\Database\Eloquent\Relations\HasMany; 
 
 class Volume extends Model
 {
@@ -14,13 +15,18 @@ class Volume extends Model
     protected $fillable = [
         'novel_id',
         'title',
-        'description',
-        'cover_image',
+        'order',
     ];
 
-    // Khai báo mối quan hệ: Tập này thuộc về Truyện nào
+    // Một Tập thuộc về một Truyện
     public function novel(): BelongsTo
     {
         return $this->belongsTo(Novel::class);
+    }
+
+    // 🌟 THÊM ĐOẠN NÀY: Một Tập có nhiều Chương
+    public function chapters(): HasMany
+    {
+        return $this->hasMany(Chapter::class);
     }
 }
