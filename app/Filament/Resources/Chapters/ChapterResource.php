@@ -3,18 +3,24 @@
 namespace App\Filament\Resources\Chapters;
 
 use App\Models\Volume;
+use App\Models\Chapter;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Tables;
 use App\Filament\Resources\Chapters\Pages\CreateChapter;
 use App\Filament\Resources\Chapters\Pages\EditChapter;
 use App\Filament\Resources\Chapters\Pages\ListChapters;
-use App\Models\Chapter;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+
+// 🌟 ĐÂY LÀ CHÌA KHÓA: Phải gọi Actions từ thư mục dùng chung này
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 
 class ChapterResource extends Resource
 {
@@ -30,7 +36,6 @@ class ChapterResource extends Resource
             ->components([
                 Schemas\Components\Section::make('Thông tin Chương')
                     ->schema([
-                        // BƯỚC 1: Chọn Truyện
                         Forms\Components\Select::make('novel_id')
                             ->label('1. Chọn Truyện trước')
                             ->options(\App\Models\Novel::pluck('title', 'id'))
@@ -44,7 +49,6 @@ class ChapterResource extends Resource
                             })
                             ->afterStateUpdated(fn ($set) => $set('volume_id', null)), 
 
-                        // BƯỚC 2: Chọn Tập (Dựa trên Truyện)
                         Forms\Components\Select::make('volume_id')
                             ->label('2. Chọn Tập')
                             ->options(fn ($get) => \App\Models\Volume::query()
@@ -54,15 +58,14 @@ class ChapterResource extends Resource
                             ->searchable()
                             ->required()
                             ->disabled(fn ($get) => ! $get('novel_id')), 
-                        // Tên Chương
+
                         Forms\Components\TextInput::make('title')
                             ->label('Tên chương (VD: Chương 1: Sự khởi đầu)')
                             ->required()
                             ->maxLength(255)
-                            ->live(onBlur: true) // Bật tính năng tự động tạo slug
+                            ->live(onBlur: true)
                             ->afterStateUpdated(fn ($set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state ?? ''))),
                         
-                        // THÊM Ô SLUG BỊ THIẾU VÀO ĐÂY
                         Forms\Components\TextInput::make('slug')
                             ->label('Đường dẫn (Slug)')
                             ->required()
@@ -70,13 +73,11 @@ class ChapterResource extends Resource
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                // KHU VỰC ALL-IN-ONE (TRUYỆN CHỮ & TRUYỆN TRANH)
                 Schemas\Components\Section::make('Nội dung Chương (All-in-one)')
                     ->schema([
                         Forms\Components\Builder::make('content')
                             ->label('Xây dựng nội dung')
                             ->blocks([
-                                // 🟢 KHỐI 1: TRUYỆN CHỮ
                                 Forms\Components\Builder\Block::make('text_block')
                                     ->label('Viết chữ (Truyện Chữ / Light Novel)')
                                     ->icon('heroicon-m-bars-3-bottom-left')
@@ -86,13 +87,12 @@ class ChapterResource extends Resource
                                             ->required()
                                             ->fileAttachmentsDirectory('chapters/images') 
                                             ->toolbarButtons([
-                                                'attachFiles', // Đã gọi lại nút Up ảnh
+                                                'attachFiles', 
                                                 'blockquote', 'bold', 'bulletList', 'h2', 'h3', 'italic',
                                                 'link', 'orderedList', 'redo', 'strike', 'underline', 'undo',
                                             ]),
                                     ]),
 
-                                // 🟢 KHỐI 2: TRUYỆN TRANH
                                 Forms\Components\Builder\Block::make('comic_block')
                                     ->label('Up ảnh hàng loạt (Truyện Tranh)')
                                     ->icon('heroicon-m-photo')
@@ -126,13 +126,22 @@ class ChapterResource extends Resource
                     ->label('Thuộc tập')
                     ->searchable()
                     ->sortable(),
-
                 Tables\Columns\TextColumn::make('title')
                     ->label('Tên chương')
                     ->searchable(),
             ])
             ->filters([
                 //
+            ])
+            ->actions([
+                // 🌟 BỎ CHỮ "Tables\Actions\" ĐI. DÙNG TRỰC TIẾP TÊN HÀM
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 

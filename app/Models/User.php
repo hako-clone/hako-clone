@@ -1,32 +1,36 @@
 <?php
-
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Filament\Models\Contracts\FilamentUser; // 🌟 Thêm dòng này
+use Filament\Panel; // 🌟 Thêm dòng này
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+// 🌟 Thêm chữ "implements FilamentUser" vào sau class
+class User extends Authenticatable implements FilamentUser 
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role', // Nhớ khai báo thêm 2 cột này để lưu được dữ liệu
+        'phone',
+    ];
+
+    // ... các code cũ giữ nguyên ...
+
+    // 🌟 THÊM HÀM NÀY ĐỂ BẢO VỆ TRANG ADMIN
+    public function canAccessPanel(Panel $panel): bool
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        // Chỉ những ai có role là 'admin' mới được vào trang quản trị
+        return $this->role === 'admin';
     }
+    // 🌟 1 User có thể theo dõi nhiều Truyện
+    public function followedNovels()
+    {
+        return $this->belongsToMany(Novel::class);
+    }
+    
 }
