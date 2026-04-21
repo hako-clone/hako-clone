@@ -110,4 +110,23 @@ class VolumeResource extends Resource
             'edit' => EditVolume::route('/{record}/edit'),
         ];
     }
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+{
+    $query = parent::getEloquentQuery();
+    $user = \Illuminate\Support\Facades\Auth::user();
+
+    // 1. Trùm Cuối thấy tất cả
+    if ($user->role === 'super_admin') {
+        return $query;
+    }
+
+    // 2. Admin chỉ thấy Volume của những bộ Novel thuộc nhóm mình
+    if ($user->role === 'admin') {
+        return $query->whereHas('novel', function ($q) use ($user) {
+            $q->where('group_id', $user->group_id);
+        });
+    }
+
+    return $query->where('id', 0);
+}
 }

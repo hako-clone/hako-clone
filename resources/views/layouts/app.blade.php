@@ -16,7 +16,7 @@
 </head>
 <body class="bg-[#f4f5f6] dark:bg-gray-900 text-[#333] dark:text-gray-200 font-sans transition-colors duration-300">
 
-    <nav class="bg-[#212529] dark:bg-black text-white shadow-md sticky top-0 z-40 transition-colors duration-300">
+    <nav class="bg-[#212529] dark:bg-black text-white shadow-md sticky top-0 z-[60] transition-colors duration-300">
         <div class="container mx-auto px-4 py-3">
             
             <div class="flex justify-between items-center">
@@ -25,13 +25,30 @@
                 </a>
 
                 <div class="flex items-center gap-4 md:gap-6">
-                    <form action="{{ route('search') }}" method="GET" class="relative hidden md:block">
-                        <input type="text" name="q" placeholder="Tìm kiếm truyện..." class="px-4 py-1.5 rounded-full text-black focus:outline-none w-64 text-sm">
-                        <button type="submit" class="absolute right-3 top-1.5 text-gray-500">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </button>
-                    </form>
+                    
+                    <div class="relative flex items-center">
+                        <div class="hidden md:block relative">
+                            <form action="{{ route('search') }}" method="GET">
+                                <input type="text" name="q" placeholder="Tìm kiếm truyện..." class="px-4 py-1.5 rounded-full text-black focus:outline-none w-48 lg:w-64 text-sm">
+                                <button type="submit" class="absolute right-3 top-1.5 text-gray-500 hover:text-orange-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </button>
+                            </form>
+                        </div>
 
+                        <button id="mobile-search-toggle" class="md:hidden text-gray-300 hover:text-orange-500 p-1 focus:outline-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </button>
+
+                        <div id="mobile-search-menu" class="absolute top-full right-0 mt-3 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3 hidden transition-all z-50">
+                            <form action="{{ route('search') }}" method="GET" class="flex items-center gap-2">
+                                <input type="text" name="q" placeholder="Nhập tên truyện..." class="w-full bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500">
+                                <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded text-sm font-bold">
+                                    Tìm
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                     <button id="theme-toggle" class="text-gray-300 hover:text-white transition">
                         <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                         <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path></svg>
@@ -40,7 +57,7 @@
                         <div class="flex items-center gap-3">
                             <span class="text-sm font-medium text-gray-300">Chào, {{ auth()->user()->name }}</span>
                             
-                            @if(auth()->user()->role === 'admin')
+                            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super_admin')
                                 <a href="/admin" class="bg-orange-500 text-white px-3 py-1.5 rounded text-sm font-bold hover:bg-orange-600 transition">
                                     ⚙️ Quản trị
                                 </a>
@@ -143,6 +160,27 @@
         scrollToTopBtn.onclick = function() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
+
+        // 🌟 ĐÃ THÊM: Script cho Nút Kính lúp Mobile 🌟
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBtn = document.getElementById('mobile-search-toggle');
+            const searchMenu = document.getElementById('mobile-search-menu');
+            
+            if (searchBtn && searchMenu) {
+                // Bấm vào kính lúp thì mở/đóng menu tìm kiếm
+                searchBtn.addEventListener('click', function(e) {
+                    e.stopPropagation(); 
+                    searchMenu.classList.toggle('hidden');
+                });
+
+                // Bấm ra ngoài vùng menu thì tự động ẩn đi
+                document.addEventListener('click', function(e) {
+                    if (!searchMenu.contains(e.target) && !searchBtn.contains(e.target)) {
+                        searchMenu.classList.add('hidden');
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

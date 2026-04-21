@@ -25,12 +25,16 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         // Chỉ những ai có role là 'admin' mới được vào trang quản trị
-        return $this->role === 'admin';
+        return $this->role === 'admin' || $this->role === 'super_admin';
     }
     // 🌟 1 User có thể theo dõi nhiều Truyện
     public function followedNovels()
     {
         return $this->belongsToMany(Novel::class);
+    }
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
     }
     
 }

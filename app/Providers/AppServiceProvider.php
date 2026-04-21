@@ -23,15 +23,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        URL::forceRootUrl(request()->getSchemeAndHttpHost());
+        // 🌟 1. LẤY LINK HIỆN TẠI MÀ BẠN/NGƯỜI DÙNG ĐANG TRUY CẬP
+        $currentUrl = request()->getSchemeAndHttpHost();
+
+        // 🌟 2. ÉP LARAVEL QUÊN FILE .ENV ĐI VÀ DÙNG LINK HIỆN TẠI
+        config(['app.url' => $currentUrl]);
+        URL::forceRootUrl($currentUrl);
+
+        // 🌟 3. ÉP HTTPS NẾU ĐANG DÙNG NGROK (Để không vỡ giao diện)
         if (str_contains(request()->getHost(), 'ngrok')) {
             URL::forceScheme('https');
         }
+
+        // --- Các phần dưới giữ nguyên ---
         try {
-            View::share('globalCategories', Category::all());
-        } catch (\Exception $e) {
-            // Đề phòng trường hợp database chưa chạy
-        }
-        Paginator::useTailwind();
+            \Illuminate\Support\Facades\View::share('globalCategories', \App\Models\Category::all());
+        } catch (\Exception $e) {}
+
+        \Illuminate\Pagination\Paginator::useTailwind();
     }
 }

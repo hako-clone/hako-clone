@@ -13,6 +13,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth; // Đã thêm Auth
 
 class NovelResource extends Resource
 {
@@ -57,14 +58,23 @@ class NovelResource extends Resource
                             ])
                             ->default('ongoing'),
 
-                        // 🌟 BƯỚC 3: Ô CHỌN THỂ LOẠI ĐÃ ĐƯỢC THÊM VÀO ĐÂY
+                        // 🌟 ĐÃ THÊM: Ô CHỌN NHÓM DỊCH
+                        Forms\Components\Select::make('group_id')
+                            ->label('Nhóm Dịch')
+                            ->relationship('group', 'name')
+                            ->preload()
+                            ->searchable()
+                            ->placeholder('Chọn nhóm...')
+                            ->visible(fn () => Auth::user()?->role === 'super_admin'),
+
+                        // Ô CHỌN THỂ LOẠI
                         Forms\Components\Select::make('categories')
                             ->label('Thể loại truyện')
                             ->relationship('categories', 'title') 
                             ->multiple() 
                             ->preload() 
                             ->searchable()
-                            ->columnSpanFull(), // Cho ô này dài hết cỡ sang ngang nhìn cho đẹp
+                            ->columnSpanFull(),
                     ])->columns(2),
 
                 Schemas\Components\Section::make('Nội dung & Hình ảnh')
@@ -95,7 +105,15 @@ class NovelResource extends Resource
                     ->label('Tác giả')
                     ->searchable(),
                 
-                // 🌟 BƯỚC 3 BONUS: CỘT HIỂN THỊ THỂ LOẠI TRÊN BẢNG
+                // 🌟 ĐÃ THÊM: CỘT HIỂN THỊ NHÓM DỊCH TRÊN BẢNG
+                Tables\Columns\TextColumn::make('group.name')
+                    ->label('Nhóm Dịch')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->placeholder('Chưa có nhóm')
+                    ->visible(fn () => Auth::user()?->role === 'super_admin'),
+                
                 Tables\Columns\TextColumn::make('categories.title')
                     ->label('Thể loại')
                     ->badge() 
@@ -130,5 +148,22 @@ class NovelResource extends Resource
             'create' => Pages\CreateNovel::route('/create'),
             'edit' => Pages\EditNovel::route('/{record}/edit'),
         ];
+    }
+    
+    // 🌟 VŨ KHÍ TỐI THƯỢNG: BỘ LỌC DỮ LIỆU ĐA TẦNG
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        if ($user->role === 'super_admin') {
+            return $query;
+        }
+
+        if ($user->role === 'admin') {
+            return $query->where('group_id', $user->group_id);
+        }
+
+        return $query->where('id', 0);
     }
 }

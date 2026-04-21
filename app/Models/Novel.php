@@ -20,6 +20,7 @@ class Novel extends Model
         'status',
         'cover_image',
         'description',
+        'group_id',
     ];
 
     public function volumes(): HasMany
@@ -40,5 +41,11 @@ class Novel extends Model
     public function followers()
     {
         return $this->belongsToMany(User::class);
+    }
+    // Báo cho hệ thống biết: 1 Bộ truyện thuộc về 1 Nhóm dịch
+    public function group()
+    {
+
+        return $this->belongsTo(\App\Models\Group::class, 'group_id');
     }
 }
