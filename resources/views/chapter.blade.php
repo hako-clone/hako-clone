@@ -3,7 +3,7 @@
 @section('content')
 <div class="bg-gray-900 min-h-screen pb-10">
     
-    <div class="bg-gray-800 text-white p-4 text-center shadow-md mb-6 sticky top-0 z-50">
+    <div id="reading-header" class="bg-gray-800 text-white p-4 text-center shadow-md mb-6 sticky top-0 z-50 transition-all duration-300 ease-in-out">
         <h1 class="text-xl font-bold text-yellow-400">
             <a href="{{ route('novel.show', $chapter->volume->novel->slug) }}" class="hover:underline">
                 {{ $chapter->volume->novel->title }}
@@ -13,8 +13,6 @@
     </div>
 
     <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-3 mb-6 px-4">
-        
-        {{-- Nút Chương Trước --}}
         @if($prevChapter)
             <a href="{{ route('chapter.show', ['novel_slug' => $prevChapter->volume->novel->slug, 'chapter_slug' => $prevChapter->slug]) }}" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition flex items-center gap-1">
                 ⬅ <span class="hidden sm:inline">Chương trước</span>
@@ -25,11 +23,9 @@
             </button>
         @endif
 
-        {{-- Drop-down chọn chương (Sẽ tự ẩn đi nếu bạn chưa khai báo biến ở Controller) --}}
         @if(isset($allChapters))
         <select onchange="window.location.href=this.value" class="bg-gray-800 border border-gray-600 text-gray-200 text-sm md:text-base px-3 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48 md:w-64 truncate">
             @foreach($allChapters as $chap)
-                {{-- Lấy novel_slug từ chương hiện tại cho an toàn --}}
                 <option value="{{ route('chapter.show', ['novel_slug' => $chapter->volume->novel->slug, 'chapter_slug' => $chap->slug]) }}" 
                     {{ $chapter->id == $chap->id ? 'selected' : '' }}>
                     {{ $chap->title }}
@@ -38,7 +34,6 @@
         </select>
         @endif
 
-        {{-- Nút Chương Sau --}}
         @if($nextChapter)
             <a href="{{ route('chapter.show', ['novel_slug' => $nextChapter->volume->novel->slug, 'chapter_slug' => $nextChapter->slug]) }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition flex items-center gap-1">
                 <span class="hidden sm:inline">Chương sau</span> ➡
@@ -48,8 +43,8 @@
                 <span class="hidden sm:inline">Chương sau</span> ➡
             </button>
         @endif
-
     </div>
+
     <div class="max-w-4xl mx-auto bg-black flex flex-col items-center">
         @if($chapter->content && is_array($chapter->content))
             @foreach($chapter->content as $block)
@@ -73,10 +68,7 @@
         @endif
     </div>
 
-
     <div class="max-w-3xl mx-auto mt-8 flex flex-wrap items-center justify-center gap-3 px-4">
-        
-        {{-- NÚT CHƯƠNG TRƯỚC (Gốc) --}}
         @if($prevChapter)
             <a href="{{ route('chapter.show', ['novel_slug' => $prevChapter->volume->novel->slug, 'chapter_slug' => $prevChapter->slug]) }}" class="bg-gray-700 text-white px-6 py-2 rounded hover:bg-gray-600 transition">
                 ⬅ Chương trước
@@ -87,7 +79,6 @@
             </button>
         @endif
 
-        {{-- NÚT CHƯƠNG SAU (Gốc) --}}
         @if($nextChapter)
             <a href="{{ route('chapter.show', ['novel_slug' => $nextChapter->volume->novel->slug, 'chapter_slug' => $nextChapter->slug]) }}" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-500 transition">
                 Chương sau ➡
@@ -97,7 +88,6 @@
                 Chương sau ➡
             </button>
         @endif
-
     </div>
 </div>
 
@@ -108,14 +98,37 @@
 </button>
 
 <script>
+    // --- KHAI BÁO BIẾN ---
+    const readingHeader = document.getElementById('reading-header');
+    const mainNavbar = document.querySelector('nav'); 
+    const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+
+    // Thiết lập hiệu ứng mượt mà ban đầu
+    if(mainNavbar) mainNavbar.style.transition = 'transform 0.3s ease-in-out';
+    if(readingHeader) readingHeader.style.transition = 'transform 0.3s ease-in-out';
+
     window.addEventListener('scroll', function() {
-        var btn = document.getElementById('scrollToTopBtn');
-        if (window.scrollY > 300) {
-            btn.classList.remove('opacity-0', 'invisible');
-            btn.classList.add('opacity-100', 'visible');
+        let currentScroll = window.scrollY || document.documentElement.scrollTop;
+
+        // 1. HIỆN/ẨN NÚT CUỘN LÊN (Vị trí > 300px)
+        if (currentScroll > 300) {
+            scrollToTopBtn.classList.remove('opacity-0', 'invisible');
+            scrollToTopBtn.classList.add('opacity-100', 'visible');
         } else {
-            btn.classList.remove('opacity-100', 'visible');
-            btn.classList.add('opacity-0', 'invisible');
+            scrollToTopBtn.classList.remove('opacity-100', 'visible');
+            scrollToTopBtn.classList.add('opacity-0', 'invisible');
+        }
+
+        // 🌟 2. CHẾ ĐỘ ĐỌC TẬP TRUNG (IMMERSIVE MODE)
+        // Khi cuộn xuống quá 50px, ẩn toàn bộ menu
+        if (currentScroll > 50) {
+            if (readingHeader) readingHeader.style.transform = 'translateY(-150%)'; // Đẩy cao hẳn lên để ẩn
+            if (mainNavbar) mainNavbar.style.transform = 'translateY(-100%)';
+        } 
+        // Chỉ khi quay lại sát đầu trang mới hiện
+        else {
+            if (readingHeader) readingHeader.style.transform = 'translateY(0)';
+            if (mainNavbar) mainNavbar.style.transform = 'translateY(0)';
         }
     });
 </script>

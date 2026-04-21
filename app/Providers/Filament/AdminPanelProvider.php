@@ -18,6 +18,7 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Navigation\MenuItem;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -27,6 +28,12 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('Về Trang Chủ')
+                    ->url('/') // Đường dẫn về trang chủ của bạn
+                    ->icon('heroicon-o-home'), // Icon hình ngôi nhà cực đẹp
+            ])
             ->login()
             ->colors([
                 'primary' => Color::Amber,

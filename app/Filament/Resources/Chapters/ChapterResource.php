@@ -160,4 +160,22 @@ class ChapterResource extends Resource
             'edit' => EditChapter::route('/{record}/edit'),
         ];
     }
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+{
+    $query = parent::getEloquentQuery();
+    $user = \Illuminate\Support\Facades\Auth::user();
+
+    if ($user->role === 'super_admin') {
+        return $query;
+    }
+
+    if ($user->role === 'admin') {
+        // Lọc Chapter thuộc về Volume -> thuộc về Novel -> thuộc về Group của User
+        return $query->whereHas('volume.novel', function ($q) use ($user) {
+            $q->where('group_id', $user->group_id);
+        });
+    }
+
+    return $query->where('id', 0);
+}
 }
