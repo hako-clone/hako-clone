@@ -17,9 +17,9 @@ use Filament\Tables\Table;
 class GroupResource extends Resource
 {
     protected static ?string $model = Group::class;
-
+// Thiết lập Icon hiển thị trên thanh Menu bên trái (Sidebar)
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+// Khi tìm kiếm toàn cục (Global Search), kết quả sẽ hiển thị theo cột 'name' của bảng Group
     protected static ?string $recordTitleAttribute = 'name';
 
     // 🌟 CHỈ TRÙM CUỐI MỚI THẤY MENU NÀY

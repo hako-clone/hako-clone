@@ -105,7 +105,9 @@ class NovelResource extends Resource
                     ->label('Tác giả')
                     ->searchable(),
                 
-                // 🌟 ĐÃ THÊM: CỘT HIỂN THỊ NHÓM DỊCH TRÊN BẢNG
+                // 🌟 HIỂN THỊ NHÓM DỊCH:
+                // Hiện tên nhóm dịch dưới dạng Badge màu xanh (info). 
+                // Chỉ Super Admin mới thấy cột này.
                 Tables\Columns\TextColumn::make('group.name')
                     ->label('Nhóm Dịch')
                     ->badge()
