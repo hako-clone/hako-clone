@@ -19,7 +19,6 @@ class User extends Authenticatable implements FilamentUser
         'phone',
     ];
 
-    // ... các code cũ giữ nguyên ...
 
     // 🌟 THÊM HÀM NÀY ĐỂ BẢO VỆ TRANG ADMIN
     public function canAccessPanel(Panel $panel): bool
