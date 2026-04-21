@@ -17,6 +17,8 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'role', // Nhớ khai báo thêm 2 cột này để lưu được dữ liệu
         'phone',
+        'group_id',
+
     ];
 
     // ... các code cũ giữ nguyên ...
