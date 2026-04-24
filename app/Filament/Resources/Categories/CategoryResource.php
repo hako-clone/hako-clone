@@ -1,7 +1,7 @@
 <?php
 // file quản lý Category trong Filament Admin
 namespace App\Filament\Resources\Categories;
-
+// import các trang CRUD
 use App\Filament\Resources\Categories\Pages\CreateCategory;
 use App\Filament\Resources\Categories\Pages\EditCategory;
 use App\Filament\Resources\Categories\Pages\ListCategories;
