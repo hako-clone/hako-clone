@@ -1,5 +1,5 @@
 <?php
-//ádasdsaaasd
+// file quản lý Category trong Filament Admin
 namespace App\Filament\Resources\Categories;
 
 use App\Filament\Resources\Categories\Pages\CreateCategory;
@@ -17,7 +17,8 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Filament\Forms;
 use Filament\Schemas;
-use Filament\Tables;
+use Filament\Tables; 
+
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteAction;
 
